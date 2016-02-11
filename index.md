@@ -31,7 +31,7 @@ Limon relies on various open source tools to perform static, dynamic and memory 
 * [Volatility memory forensics framework](http://www.volatilityfoundation.org/#!releases/component_7140)
 
 ## Setting up Limon
-￼
+
 For Limon to work, proper setup of the environment is required (this is a one-time setup).Limon should work on any versions of Ubuntu (or other Linux), but it was tested on these versions of Ubuntu Linux mentioned below). This section gives an example setup (the ip address can vary, the below ip addresses and network configuration was used in the setup)
 
 The setup consists of a host machine running Ubuntu 15.04 (64 bit) with VMware Workstation Installed and analysis machine running Ubuntu 12.04 or 14.04 (64 bit version) inside VMware Workstation in the bridge mode. Analysis machine is where the malware will be run, both host and analysis machine runs with root privileges. The ip address of the host machine is set to 192.168.1.3 and the ip address of the analysis machine is set to 192.168.1.150 and the gateway of the analysis machine is set to 192.168.1.3 (ip address of host machine) and the dns server on the analysis machine is set to 4.2.2.2. The idea of this setup is to make sure that when the malware is run in the analysis machine all its network traffic goes through the host machine where the packets will be captured.
@@ -139,7 +139,9 @@ Once all the necessary tools are installed on the host and analysis machine the 
 1. First download Limon from the below link
 ```https://github.com/monnappa22/Limon```
 
-2. Unzip Limon. Configuring Limon involves updating the variables with appropriate values in conf.py file. Most of these variables are straight forward and these variables need to be set with appropriate values. The variables in conf.py are updated with sample values for reference.
+2. Unzip Limon. 
+
+Configuring Limon involves updating the variables with appropriate values in conf.py file. Most of these variables are straight forward and these variables need to be set with appropriate values. The variables in conf.py are updated with sample values for reference.
 
 Below are some of the variables in the conf.py which might need to be modified if it is different from the default values (do not modify other variables)
 
@@ -200,50 +202,82 @@ Example: host_iface_to_sniff = "eth0"
 
 21. host_tcpdumppath -> path to tcpdump on the host machine, This path can be determined by using the command “which tcpdump”
 Example: host_tcpdumppath = "/usr/sbin/tcpdump"
-22) vol_path -> path to Volatility(vol.py) script on the host machine. Example: vol_path = r'/root/Volatility/vol.py'
-23) mem_image_profile -> Name of the Volatility profile for the analysis machine. In our case name of the profile is “LinuxUbuntu1204x64”. So the value of the variable is set as shown below:
-Example: mem_image_profile = '--profile=LinuxUbuntu1204x64' 24) inetsim_path -> path to the INetSim
+
+22. vol_path -> path to Volatility(vol.py) script on the host machine. Example: vol_path = r'/root/Volatility/vol.py'
+
+23. mem_image_profile -> Name of the Volatility profile for the analysis machine. In our case name of the profile is “LinuxUbuntu1204x64”. So the value of the variable is set as shown below:
+Example: mem_image_profile = '--profile=LinuxUbuntu1204x64' 
+
+24. inetsim_path -> path to the INetSim
 Example: inetsim_path = r"/usr/share/inetsim/inetsim"
-25) inetsim_log_dir -> path to INetSim log directory
+
+25. inetsim_log_dir -> path to INetSim log directory
 Example: inetsim_log_dir = r"/usr/share/inetsim/log"
-26) inetsim_report_dir -> path to INetSim report directory Example: inetsim_report_dir = r"/usr/share/inetsim/report"
-27) analysis_sysdig_path -> path to sysdig on the analysis machine Example: analysis_sysdig_path = r'/usr/bin/sysdig'
-28) host_sysdig_path -> path to sysdig on the host machine Example: host_sysdig_path = r'/usr/bin/sysdig'
-29) analysis_capture_out_file ->This is the temporary file on the analysis machine where sysdig events are saved. Do not modify this value and make sure the logdir exists under /root. The default value is shown below
+
+26. inetsim_report_dir -> path to INetSim report directory Example: inetsim_report_dir = r"/usr/share/inetsim/report"
+
+27. analysis_sysdig_path -> path to sysdig on the analysis machine Example: analysis_sysdig_path = r'/usr/bin/sysdig'
+
+28. host_sysdig_path -> path to sysdig on the host machine Example: host_sysdig_path = r'/usr/bin/sysdig'
+
+29. analysis_capture_out_file ->This is the temporary file on the analysis machine where sysdig events are saved. Do not modify this value and make sure the logdir exists under /root. The default value is shown below
 Example: analysis_capture_out_file = r'/root/logdir/capture.scap'
-30) analysis_strace_path -> path to strace on analysis machine (ex: /usr/bin/strace
+
+30. analysis_strace_path -> path to strace on analysis machine (ex: /usr/bin/strace
 Example: analysis_strace_path = r'/usr/bin/strace'
-31) analysis_strace_out_file -> This is the temporary file on the analysis machine where call trace events are saved. Do not modify this value and make sure the logdir exists under /root. The default value is shown below
+
+31. analysis_strace_out_file -> This is the temporary file on the analysis machine where call trace events are saved. Do not modify this value and make sure the logdir exists under /root. The default value is shown below
 Example: analysis_strace_out_file = r'/root/logdir/trace.txt'
-32) analysis_log_outpath -> This is the directory on the analysis machine where temporary artifacts will be saved. Do not modify this value and make sure the logdir exists under /root. . The default value is shown below
+
+32. analysis_log_outpath -> This is the directory on the analysis machine where temporary artifacts will be saved. Do not modify this value and make sure the logdir exists under /root. . The default value is shown below
 Example: analysis_log_outpath = r'/root/logdir'
-Options in Limon
+
+## Options in Limon
+
 Limon comes with various options and supports analysis of various file types. The below screenshot shows options in Limon and running a Linux malware sample “tsuna” for 40 seconds. With –m option Limon also performs memory analysis
+
 Limon by default uses strace with filtered call trace for performing dynamic analysis. In filtered call trace it just traces few system calls that are commonly used by malwares (like process, file and network related system calls). This is less noisy
+
 For more verbose call tracing (i.e to trace all system calls)
+
 –C (--ufctrace) option can be used, this will trace all the system calls using strace. This will generate verbose output
 ￼￼￼￼￼￼￼￼
 Limon can also monitor system calls using Sysdig, Sysdig just supports event monitoring for x64 bit files.
+
 -e (--femonitor) This option performs event monitoring with Sysdig, In this case only system calls commonly used by malware are monitored. This is less noisy.
+
 -E (--ufemonitor) This option performs event monitoring with Sysdig, In this case all system calls are monitored. This is generate verbose output
+
 -m (--memfor) This options performs memory analysis (along with static and dynamic analysis). Limon relies on Volatility memory forensics framework to perform memory analysis. This options runs most of the Volatility plugins except some plugins which takes some time to run.
+
 -M (--vmemfor) This options performs verbose memory analysis (along with static and dynamic analysis) using Volatility. This options runs all the Volatility plugins including the plugins that takes time. This can be slightly slow.
+
 -x (--printhexdump) This option prints hex dump in the call trace
-Examples
+
+## Examples
+
 Some examples of using Limon can be found here
-https://www.blackhat.com/docs/eu-15/materials/eu-15-KA-Automating- Linux-Malware-Analysis-Using-Limon-Sandbox.pdf
+```https://www.blackhat.com/docs/eu-15/materials/eu-15-KA-Automating- Linux-Malware-Analysis-Using-Limon-Sandbox.pdf```
+
 The below examples should give an idea on running Limon
-1) Running an ELF binary in Limon using sanbox mode (runs for 60 seconds by default) without memory analysis (just performs static and dynamic analysis)
+
+1. Running an ELF binary in Limon using sanbox mode (runs for 60 seconds by default) without memory analysis (just performs static and dynamic analysis)
 # python limon.py <malware sample>
-2) Running an ELF binary in Limon using internet mode (runs for 60 seconds by default) without memory analysis (just performs static and dynamic analysis)
+
+2. Running an ELF binary in Limon using internet mode (runs for 60 seconds by default) without memory analysis (just performs static and dynamic analysis)
 # python limon.py <malware sample> -i
 ￼￼
-3) Running an ELF binary in Limon for 40 seconds in the sandbox mode with unfiltered call trace
+3. Running an ELF binary in Limon for 40 seconds in the sandbox mode with unfiltered call trace
 # python limon.py <malware sample> -t 40 -C
-4) Running a perl script in Limon for 25 seconds with filtered system monitoring
+
+4. Running a perl script in Limon for 25 seconds with filtered system monitoring
 # python limon.py –p <malicious.pl> -t 25 –e
+
+
 For more details and analysis of Linux malware using Limon:
+
 http://malware-unplugged.blogspot.com/2015/11/limon-sandbox-for- analyzing-linux.html
+
 For any queries, send an email to:
 monnappa22@gmail.com
 twitter: @monnappa22
