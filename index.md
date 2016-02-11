@@ -13,7 +13,8 @@ Limon download link:
 ## Working of Limon
 
 Limon takes malware sample as input it performs static analysis, dynamic analysis, memory analysis and reports the result.
-￼￼￼￼￼￼￼
+
+
 ## Tools used by Limon
 
 Limon relies on various open source tools to perform static, dynamic and memory analysis which means these tools need to installed (some of these tools need to be installed on the host machine and some in the analysis machine and some in both) for Limon to work. Some of these tools come installed with default Linux installations. Below is the list of tools Limon relies on:
@@ -274,11 +275,8 @@ The below examples should give an idea on running Limon
 # python limon.py –p <malicious.pl> -t 25 –e
 
 
-For more details and analysis of Linux malware using Limon:
+[For more details and analysis of Linux malware using Limon](http://malware-unplugged.blogspot.com/2015/11/limon-sandbox-for- analyzing-linux.html)
 
-http://malware-unplugged.blogspot.com/2015/11/limon-sandbox-for- analyzing-linux.html
-
-For any queries, send an email to:
-monnappa22@gmail.com
-twitter: @monnappa22
+For any queries, [send an email](mailto:monnappa22@gmail.com)
+[twitter](https://twitter.com/monnappa22)
 ￼￼￼
