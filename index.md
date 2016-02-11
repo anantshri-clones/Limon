@@ -17,6 +17,7 @@ Limon takes malware sample as input it performs static analysis, dynamic analysi
 ## Tools used by Limon
 
 Limon relies on various open source tools to perform static, dynamic and memory analysis which means these tools need to installed (some of these tools need to be installed on the host machine and some in the analysis machine and some in both) for Limon to work. Some of these tools come installed with default Linux installations. Below is the list of tools Limon relies on:
+
 * [YARA and YARA-python](https://github.com/plusvic/yara/releases)
 * [VirusTotal Public API](https://www.virustotal.com/en/documentation/public-api/)
 * [ssdeep](http://ssdeep.sourceforge.net/)
@@ -28,7 +29,8 @@ Limon relies on various open source tools to perform static, dynamic and memory 
 * [strace](http://linux.die.net/man/1/strace)
 * [Sysdig](http://www.sysdig.org)
 * [Volatility memory forensics framework](http://www.volatilityfoundation.org/#!releases/component_7140)
-Setting up Limon
+
+## Setting up Limon
 ￼
 For Limon to work, proper setup of the environment is required (this is a one-time setup).Limon should work on any versions of Ubuntu (or other Linux), but it was tested on these versions of Ubuntu Linux mentioned below). This section gives an example setup (the ip address can vary, the below ip addresses and network configuration was used in the setup)
 
@@ -39,6 +41,7 @@ This section focuses on the tools that need to be installed on the host machine.
 ￼￼￼￼￼￼￼￼
 path from where to invoke these tools. Most of the time “which” command on Linux can be used to determine the path of the tool. For example: if you want to determine the path of “ls” utility you can use the below command
 # which ls
+
 	a) VMware Workstation – Install VMware Workstation for Linux on the host machine (In this case VMware workstation 10.0.2 was installed on the host machine running Ubuntu 15.04). Once VMware Workstation is installed, install either Ubuntu 12.04 or Ubuntu 14.04 in the VMware workstation, this will be your analysis machine where Limon will run the malware samples
 	
 	b) yara 1.7.2 and YARA-Python
@@ -68,7 +71,7 @@ path from where to invoke these tools. Most of the time “which” command on L
 	
 	h) create a directory to store analysis results – Create a directory /root/linux_reports to store the analysis results. This is the directory where the final report, pcap and other artifacts are stored after analyzing the malware.
 	
-	2) Configuring and Installing tools on Analysis Machine
+2. Configuring and Installing tools on Analysis Machine
 	This section focuses on the tools that need to be installed on the analysis machine. After installation note down the path to all these tools, this is required later to update the variables in Limon so that Limon knows the path in the analysis machine from where to invoke these tools.
 	
 	a) Set Root password and enable graphical root login – Set the root password on the analysis machine and enable graphical root login by following the procedure mentioned in the below link
@@ -90,74 +93,112 @@ path from where to invoke these tools. Most of the time “which” command on L
 	Note: if you are running Ubuntu 14.04 on the analysis machine, then remove strace (apt-get remove strace) which comes with default Ubuntu 14.04 installation, strace has a bug (mostly strace version 4.8) because of which it cannot trace child processes. Once removed download strace from this link
 	http://sourceforge.net/projects/strace/
 	and Install strace from source by executing below commands
+	```
 	# tar xvzf strace-4.10.tar.xz # cd strace-4.10 #./configure
 	# make
 	# make install
+	```
+
 	d) PHP - To run php scripts install php by executing the below command
-	# apt-get install php5-cli
+	```# apt-get install php5-cli```
+
 	e) Install packages to run 32 bit executable on 64 bit Ubuntu system
 	To run a 32-bit executable file on a 64-bit multi-architecture Ubuntu system, you have to add the i386 architecture and install the three library packages libc6:i386, libncurses5:i386, and libstdc++6:i386. These packages can be installed by running the below commands
-On Ubuntu 14.04 and above run the below commands
-# dpkg --add-architecture i386
-# apt-get update
-#apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
-On Ubuntu 12.04 and below run the below commands
-# echo "foreign-architecture i386" > /etc/dpkg/dpkg.cfg.d/multiarch # sudo apt-get update
-# sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
-f) Create directory to transfer malware sample
-On the analysis machine create a directory “/root/malware_analysis” and /root/logdir
-add /root/malware_analysis to PATH environment variable by following below step
-edit /etc/environment with text editor and then at the end add the path /root/malware_analysis (all the path should be seperated by colon as shown below)
-ex: PATH=/usr/bin:/root/malware_analysis
-g) Create Volatility Profile – Limon relies on Volatility to perform memory analysis. After the malware is executed in the analysis machine, the analysis machine suspended to captures its memory image and memory analysis is performed. To successfully perform memory analysis Volatility profile for the analysis machine (in our case Ubuntu 12.04 or Ubuntu 14.04) need to be created. To create profile for the analysis machine follow the procedure mentioned in the below link:
-https://github.com/volatilityfoundation/volatility/wiki/Linux
-Profile is essentially a zip file with information on the kernel’s data structures and debugs symbols. Once this zip is created, then move this zip file under 'volatility/plugins/overlays/linux on the host machine (where Volatility and its dependencies were installed)
-h) Clear Bash Hisory – Clear the bash history on the analysis machine by running the below command
-# history -c && history –w
-i) take a cleansnapshot – Once all the tools are installed power off the analysis machine, power it on and then take a snapshot, in my case the name of the snapshot is “cleansnapshot” (note down the name)
-Configuring Limon
+
+	On Ubuntu 14.04 and above run the below commands
+	```
+	# dpkg --add-architecture i386
+	# apt-get update
+	#apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
+	```
+	
+	On Ubuntu 12.04 and below run the below commands
+	```
+	# echo "foreign-architecture i386" > /etc/dpkg/dpkg.cfg.d/multiarch # sudo apt-get update
+	# sudo apt-get install libc6:i386 libncurses5:i386 libstdc++6:i386
+	```
+	f) Create directory to transfer malware sample
+	On the analysis machine create a directory “/root/malware_analysis” and /root/logdir
+	add /root/malware_analysis to PATH environment variable by following below step
+	edit /etc/environment with text editor and then at the end add the path /root/malware_analysis (all the path should be seperated by colon as shown below)
+	ex: PATH=/usr/bin:/root/malware_analysis
+	
+	g) Create Volatility Profile – Limon relies on Volatility to perform memory analysis. After the malware is executed in the analysis machine, the analysis machine suspended to captures its memory image and memory analysis is performed. To successfully perform memory analysis Volatility profile for the analysis machine (in our case Ubuntu 12.04 or Ubuntu 14.04) need to be created. To create profile for the analysis machine follow the procedure mentioned in the below link:
+	https://github.com/volatilityfoundation/volatility/wiki/Linux
+	Profile is essentially a zip file with information on the kernel’s data structures and debugs symbols. Once this zip is created, then move this zip file under 'volatility/plugins/overlays/linux on the host machine (where Volatility and its dependencies were installed)
+	
+	h) Clear Bash Hisory – Clear the bash history on the analysis machine by running the below command
+	```# history -c && history –w```
+
+	i) take a cleansnapshot – Once all the tools are installed power off the analysis machine, power it on and then take a snapshot, in my case the name of the snapshot is “cleansnapshot” (note down the name)
+
+## Configuring Limon
+
 Once all the necessary tools are installed on the host and analysis machine the next step is to configure the Limon
-First download Limon from the below link
-https://github.com/monnappa22/Limon
-Unzip Limon. Configuring Limon involves updating the variables with appropriate values in conf.py file. Most of these variables are straight forward and these variables need to be set with appropriate values. The variables in conf.py are updated with sample values for reference.
+
+1. First download Limon from the below link
+```https://github.com/monnappa22/Limon```
+
+2. Unzip Limon. Configuring Limon involves updating the variables with appropriate values in conf.py file. Most of these variables are straight forward and these variables need to be set with appropriate values. The variables in conf.py are updated with sample values for reference.
+
 Below are some of the variables in the conf.py which might need to be modified if it is different from the default values (do not modify other variables)
-1) py_path -> This variable contains the path to the python interpreter on the host machine. You can get this path by running below command
-￼￼
+
+1. py_path -> This variable contains the path to the python interpreter on the host machine. You can get this path by running below command
 # which python
 Example: py_path = r'/usr/bin/python'
-2) report_dir -> This is path to the directory where the final report will be stored in our case it is /root/linux_reports
+
+2. report_dir -> This is path to the directory where the final report will be stored in our case it is /root/linux_reports
 Example: report_dir = r'/root/linux_reports'
-3) virustotal_key -> This variable should contain the virustotal public api key
+
+3. virustotal_key -> This variable should contain the virustotal public api key
 Example: virustotal_key = "enter virustotal public key here"
-4) host_analysis_vmpath -> This variable should contain the path to the .vmx file of the analysis machine. In our case the .vmx is located in /root/virtual_machines/Ubuntu12_04/Ubuntu12_04.vmx
+
+4. host_analysis_vmpath -> This variable should contain the path to the .vmx file of the analysis machine. In our case the .vmx is located in /root/virtual_machines/Ubuntu12_04/Ubuntu12_04.vmx
 Example: host_analysis_vmpath = r'/root/virtual_machines/Ubuntu12_04/Ubuntu12_04.vmx'
-5) host_vmrunpath -> This variable should contain the path to vmrun utilitly. This path can be determined by running the command
+
+5. host_vmrunpath -> This variable should contain the path to vmrun utilitly. This path can be determined by running the command
 # which vmrun
 Example: host_vmrunpath = r'/usr/bin/vmrun'
-6) host_vmtype -> This is VMware type in our case it is workstation so this variable should be set with the value ‘ws’
+
+6. host_vmtype -> This is VMware type in our case it is workstation so this variable should be set with the value ‘ws’
 Example: host_vmtype = r'ws'
-7) analysis_username -> username of the analysis machine
+
+7. analysis_username -> username of the analysis machine
 Example: analysis_username = "enter username of the analysis machine"
-8) analysis_password -> password of the analysis machine
+
+8. analysis_password -> password of the analysis machine
 Example: analysis_password = "enter password of the analysis machine"
-9) analysis_clean_snapname -> name of the cleansnapshot. In our case it is “cleansnapshot”
+
+9. analysis_clean_snapname -> name of the cleansnapshot. In our case it is “cleansnapshot”
 Example: analysis_clean_snapname = "cleansnapshot"
-10) analysis_mal_dir -> this is path on the analysis machine where the malware sample will be transferred. In our case it is “/root/malware_analysis”
+
+10. analysis_mal_dir -> this is path on the analysis machine where the malware sample will be transferred. In our case it is “/root/malware_analysis”
 Example: analysis_mal_dir = r"/root/malware_analysis"
-11) analysis_py_path -> path to python interpreter on the analysis machine
+
+11. analysis_py_path -> path to python interpreter on the analysis machine
 Example: analysis_py_path = r'/usr/bin/python'
-12) analysis_perl_path -> path to perl interpreter on the analysis machine
+
+12. analysis_perl_path -> path to perl interpreter on the analysis machine
 Example: analysis_perl_path = r'/usr/bin/perl' 13) analysis_bash_path -> path to bash shell Example: analysis_bash_path = r'/bin/bash'
-14) analysis_sh_path -> path to shell Example: analysis_sh_path = r'/bin/sh'
-15) analysis_insmod_path -> path to insmod Example: analysis_insmod_path = r'/sbin/insmod' 16) analysis_php_path -> path to php interpreter Example: analysis_php_path = r'/usr/bin/php'
-17) yara_packer_rules -> path to yara rules to detect packers Example: yara_packer_rules = r'/root/yara_rules/packer.yara'
-18) yara_rules -> path to yara rules, in our case it contains rules to detect malware capabilities like IRC capability
+
+14. analysis_sh_path -> path to shell Example: analysis_sh_path = r'/bin/sh'
+
+15. analysis_insmod_path -> path to insmod Example: analysis_insmod_path = r'/sbin/insmod' 
+
+16. analysis_php_path -> path to php interpreter Example: analysis_php_path = r'/usr/bin/php'
+
+17. yara_packer_rules -> path to yara rules to detect packers Example: yara_packer_rules = r'/root/yara_rules/packer.yara'
+
+18. yara_rules -> path to yara rules, in our case it contains rules to detect malware capabilities like IRC capability
 Example: yara_rules = r'/root/yara_rules/capabilities.yara'
-19) analysis_ip -> IP address of the analysis machine in our setup it is 192.168.1.150
+
+19. analysis_ip -> IP address of the analysis machine in our setup it is 192.168.1.150
 Example: analysis_ip = "192.168.1.150"
-20) host_iface_to_sniff -> This is the interface on the host machine on which the packets will be captured while malware is executing
+
+20. host_iface_to_sniff -> This is the interface on the host machine on which the packets will be captured while malware is executing
 Example: host_iface_to_sniff = "eth0"
-21) host_tcpdumppath -> path to tcpdump on the host machine, This path can be determined by using the command “which tcpdump”
+
+21. host_tcpdumppath -> path to tcpdump on the host machine, This path can be determined by using the command “which tcpdump”
 Example: host_tcpdumppath = "/usr/sbin/tcpdump"
 22) vol_path -> path to Volatility(vol.py) script on the host machine. Example: vol_path = r'/root/Volatility/vol.py'
 23) mem_image_profile -> Name of the Volatility profile for the analysis machine. In our case name of the profile is “LinuxUbuntu1204x64”. So the value of the variable is set as shown below:
